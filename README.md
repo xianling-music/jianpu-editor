@@ -1,5 +1,10 @@
 # jianpu-editor
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/webkubor/free-imgbed@main/xianling-music/logo-dark.svg">
+  <img src="https://cdn.jsdelivr.net/gh/webkubor/free-imgbed@main/xianling-music/logo-light.svg" alt="仙灵音乐 · 暮紫音波" width="160">
+</picture>
+
 丝滑的网页简谱（numbered musical notation）编辑器。
 
 在线体验：https://jianpu.webkubor.online/
