@@ -247,5 +247,9 @@
       </table>
     </div>
   </div>
+<script type="module">
+  import { trackUsage } from "./src/core/usage.ts";
+  trackUsage({ event: "page.view" });
+</script>
 </body>
 </html>

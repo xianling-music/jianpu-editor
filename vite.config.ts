@@ -1,8 +1,11 @@
 /**
  * Vite 配置
- * 路由：无（单页应用，根路径即编辑器）
+ * 入口：编辑器与独立教程页
  */
 export default {
   base: "./",
+  build: {
+    rollupOptions: { input: ["index.html", "tutorial.html"] },
+  },
   server: { port: 5196 },
 };

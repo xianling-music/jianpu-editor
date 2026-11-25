@@ -7,7 +7,7 @@ export const PRODUCTION_HOST = "jianpu.webkubor.online";
 export const OPT_OUT_KEY = "jianpu-editor:analytics";
 
 export type ExportFormat = "json" | "midi" | "wav" | "png" | "svg";
-export type UsageEvent = { event: "editor.open" } | { event: "score.export"; format: ExportFormat };
+export type UsageEvent = { event: "editor.open" | "page.view" } | { event: "score.export"; format: ExportFormat };
 
 export interface UsageEnv {
   host: string;

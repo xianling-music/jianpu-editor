@@ -14,9 +14,11 @@ function env(over: Partial<UsageEnv> = {}) {
 test("usage: 正式域名发送固定 payload，只含格式枚举", () => {
   const { e, sent } = env();
   trackUsage({ event: "editor.open" }, e);
+  trackUsage({ event: "page.view" }, e);
   trackUsage({ event: "score.export", format: "midi" }, e);
   assert.deepEqual(sent, [
     { url: `${ANALYTICS_API}/events`, body: { project: "jianpu-editor", event_id: "id-1", event: "editor.open", properties: {} } },
+    { url: `${ANALYTICS_API}/events`, body: { project: "jianpu-editor", event_id: "id-1", event: "page.view", properties: {} } },
     { url: `${ANALYTICS_API}/events`, body: { project: "jianpu-editor", event_id: "id-1", event: "score.export", properties: { format: "midi" } } },
   ]);
 });
@@ -25,6 +27,7 @@ test("usage: DNT、用户关闭、非正式域名都不发送", () => {
   for (const over of [{ doNotTrack: "1" }, { optedOut: () => true }, { host: "localhost" }, { host: "jianpu-editor.pages.dev" }]) {
     const { e, sent } = env(over);
     trackUsage({ event: "editor.open" }, e);
+    trackUsage({ event: "page.view" }, e);
     assert.equal(sent.length, 0);
   }
 });
