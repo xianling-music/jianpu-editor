@@ -15,6 +15,7 @@ import { autosave, deserializeScore, downloadBinary, downloadScore, downloadText
 import { EXAMPLES } from "../core/examples.ts";
 import { parseMidiBytes, midiToScore } from "../core/midi-import.ts";
 import { renderScoreToWav } from "../core/wav-export.ts";
+import { setUsageEnabled, trackUsage, usageEnabled } from "../core/usage.ts";
 
 /** 从 localStorage 恢复或用默认谱 */
 function initialScore() {
@@ -171,6 +172,7 @@ window.addEventListener("keydown", (e) => {
       e.preventDefault();
     } else if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "s") {
       downloadScore(state.score); // ⌘S 快速保存工程文件
+      trackUsage({ event: "score.export", format: "json" });
       statusEl.textContent = `已保存：${state.score.title}.jianpu.json`;
       e.preventDefault();
     } else if ((e.metaKey || e.ctrlKey) && e.key === "ArrowLeft") {
@@ -537,6 +539,7 @@ document.getElementById("new-score")?.addEventListener("click", () => {
 
 document.getElementById("save")?.addEventListener("click", () => {
   downloadScore(state.score);
+  trackUsage({ event: "score.export", format: "json" });
 });
 
 /** 打印/导出 PNG：SVG 序列化 → 离屏 canvas → 下载 */
@@ -545,6 +548,7 @@ document.getElementById("export-midi")?.addEventListener("click", () => {
   const events = compileEvents(state.score);
   const data = toMidi(events, state.score.speed);
   downloadBinary(data, `${sanitizeFilename(state.score.title)}.mid`);
+  trackUsage({ event: "score.export", format: "midi" });
 });
 
 // WAV 音频导出：使用 OfflineAudioContext 高速离线渲染生成 .wav 音频
@@ -558,6 +562,7 @@ document.getElementById("export-wav")?.addEventListener("click", async () => {
     statusEl.textContent = "正在离线渲染 WAV 音频...";
     const wavBytes = await renderScoreToWav(events);
     downloadBinary(wavBytes, `${sanitizeFilename(state.score.title || "简谱")}.wav`);
+    trackUsage({ event: "score.export", format: "wav" });
     statusEl.textContent = `WAV 音频已导出 (${(wavBytes.length / 1024).toFixed(1)} KB)`;
   } catch (err) {
     statusEl.textContent = `WAV 导出失败：${(err as Error).message}`;
@@ -647,6 +652,7 @@ document.getElementById("export-png")?.addEventListener("click", () => {
     a.href = cv.toDataURL("image/png");
     a.download = `${sanitizeFilename(state.score.title || "简谱")}.png`;
     a.click();
+    trackUsage({ event: "score.export", format: "png" });
   };
   img.onerror = () => {
     URL.revokeObjectURL(url);
@@ -660,6 +666,7 @@ document.getElementById("export-svg")?.addEventListener("click", () => {
   const svg = renderExportSvg();
   const xml = new XMLSerializer().serializeToString(svg);
   downloadText(xml, `${sanitizeFilename(state.score.title || "简谱")}.svg`);
+  trackUsage({ event: "score.export", format: "svg" });
 });
 
 /** 打印 / 另存为 PDF：优化多页 A4 独立卡片打印与精准物理分页样式 */
@@ -794,4 +801,11 @@ document.getElementById("close-help")?.addEventListener("click", () => {
   helpDialog?.close();
 });
 
+const usageToggle = document.getElementById("usage-toggle") as HTMLInputElement | null;
+if (usageToggle) {
+  usageToggle.checked = usageEnabled();
+  usageToggle.addEventListener("change", () => setUsageEnabled(usageToggle.checked));
+}
+
 refresh();
+trackUsage({ event: "editor.open" });
